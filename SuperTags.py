@@ -39,12 +39,13 @@ class BurpExtender(IBurpExtender,IHttpListener):
                 Allparams = {}
 
                 for para in reqParaList:
-                    Allparams[para.getName()] = para.getValue()
+                    if para.getType() != para.PARAM_COOKIE:
+                        Allparams[para.getName()] = para.getValue()
                           
                 # 获得响应体
                 response = messageInfo.getResponse() # get response
                 analyzedResponse = self._helpers.analyzeResponse(response)
-                body = response[analyzedResponse.getBodyOffset():] 
+                body = response[analyzedResponse.getBodyOffset():]
                 response_body = body.tostring() # get response_body
                 # print response_body
 
@@ -58,9 +59,10 @@ class BurpExtender(IBurpExtender,IHttpListener):
     def ChecktheSame(self,Allparams,tags,reqUrl):
 
         for param_key in Allparams:
-            for tag in tags:                                                    
-                if tag.find(Allparams[param_key]) != -1:
-                    print "Found Available tag %s" % (tag)
-                    print "Variable param is \"%s\" and the Vulnerable url is :   %s\n" % (param_key,reqUrl)
-                else:
-                    continue
+            if Allparams[param_key]:
+                for tag in tags:                                                    
+                    if tag.find(Allparams[param_key]) != -1:
+                        print "Found Available tag %s" % (tag)
+                        print "Variable param is \"%s\" and the Vulnerable url is :   %s\n" % (param_key,reqUrl)
+                    else:
+                        continue
